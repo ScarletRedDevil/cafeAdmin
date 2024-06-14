@@ -1,0 +1,149 @@
+create  table  topcategory(
+   topcategory_idx  int primary key auto_increment 
+ , topname  varchar(30)
+) default character set utf8;
+
+insert into topcategory(topname) values('Coffee');
+insert into topcategory(topname) values('Non-Coffee');
+insert into topcategory(topname) values('Dessert');
+
+create  table  subcategory(
+   subcategory_idx  int  primary key auto_increment 
+ , subname varchar(30)
+ , topcategory_idx  int 
+ , constraint fk_topcategory_subcategory  foreign key (topcategory_idx) references topcategory (topcategory_idx)
+) default character set utf8;
+
+insert into subcategory(subname, topcategory_idx) values('Coffee',1);
+insert into subcategory(subname, topcategory_idx) values('Decaffein',1);
+
+insert into subcategory(subname, topcategory_idx) values('Ade',2);
+insert into subcategory(subname, topcategory_idx) values('Blend',2);
+insert into subcategory(subname, topcategory_idx) values('Juice',2);
+
+insert into subcategory(subname, topcategory_idx) values('Bread',3);
+insert into subcategory(subname, topcategory_idx) values('Cookie',3);
+
+
+create table  product (
+   product_idx  int  primary key auto_increment 
+ , product_name varchar(30)
+ , price  int  default  0
+ , detail text 
+ , filename  varchar(17)
+ , subcategory_idx  int 
+ , constraint fk_subcategory_product  foreign key (subcategory_idx) references subcategory (subcategory_idx)
+) default character set utf8;
+
+create table psize(
+	   psize_idx  int  primary key auto_increment 
+	 , size_name varchar(3)
+	 , product_idx int
+	 , constraint  fk_product_psize  foreign key (product_idx) references product (product_idx)
+) default character set utf8;
+
+create table sns(
+	sns_idx int primary key auto_increment
+	, sns_name varchar(12)
+	) default character set utf8;
+	
+	
+insert into sns(sns_name) values('google');
+insert into sns(sns_name) values('naver');
+insert into sns(sns_name) values('kakao');
+insert into sns(sns_name) values('homepage');
+	
+create  table  role(
+	role_idx  int primary key auto_increment 
+	, role_name  varchar(12)
+);
+
+insert into role(role_name) values('ADMIN');
+insert into role(role_name) values('USER');
+insert into role(role_name) values('GUEST');
+
+create table admin(
+   admin_idx int primary key auto_increment
+   , uid varchar(30)
+   , pwd varchar(64)
+) default  character set utf8;
+
+create table  member_detail(
+   member_detail_idx  int primary key auto_increment
+ , password  varchar(64)
+ , phone varchar(14)
+ , member_idx int
+ , constraint  fk_member_member_detail foreign key(member_idx)
+    references  member (member_idx)
+) default  character set utf8;
+
+
+
+//카트테이블 생성쿼리
+create  table  cart(
+    cart_idx  int  primary key auto_increment 
+  , ea int default 0 
+  , member_idx  int 
+  , product_idx  int 
+  , constraint  fk_member_cart  foreign key (member_idx) references member (member_idx)
+  , constraint  fk_product_cart foreign key (product_idx) references product (product_idx)
+);
+
+//받는사람 생성쿼리
+create table receiver(
+	receiver_idx int primary key auto_increment
+	, member_idx int
+	, constraint fk_member_receiver foreign key (member_idx) references member(member_idx)
+)default character set utf8;
+
+//결제방법
+create table paymethod(
+	paymethod_idx int primary key auto_increment
+	, payname varchar(15)
+)default character set utf8;
+
+insert into paymethod(payname) values('card');
+insert into paymethod(payname) values('transfer');
+insert into paymethod(payname) values('phone');
+
+//주문요약
+create table ordersummary(
+	ordersummary_idx int primary key auto_increment
+	, orderdate timestamp default now()
+	, total_buy int default 0
+	, total_pay int default 0
+	, member_idx int
+	, paymethod_idx int
+	, receiver_idx int
+	, constraint fk_member_ordersummary foreign key (member_idx) references member(member_idx)
+	, constraint fk_paymethod_ordersummary foreign key (paymethod_idx) references paymethod(paymethod_idx)
+	, constraint fk_receiver_ordersummary foreign key (receiver_idx) references receiver(receiver_idx)
+)default character set utf8;
+
+//주문상세
+create table orderdetail(
+   orderdetail_idx int primary key auto_increment 
+ , product_name varchar(30)
+ , price int default 0 
+ , product_idx int 
+ , ordersummary_idx int 
+ , constraint  fk_product_orderdetail  foreign key (product_idx) references product(product_idx)
+ , constraint fk_ordersummary_orderdetail foreign key (ordersummary_idx) references ordersummary (ordersummary_idx)
+) default character set utf8;
+
+
+
+///////////// 이건 참고용 안쓰는거
+
+select m.member_idx as member_idx
+        ,uid, password, nickname, email, sns_idx, 
+        phone, addr
+from member m, member_detail d
+where m.member_idx = d.member_idx 
+and  uid='minzino' and password='1234'
+
+
+
+
+
+
