@@ -28,7 +28,7 @@ public class SecurityConfig {
 					(auth) -> auth
 					.requestMatchers("/admin/**").permitAll() 
 					.requestMatchers("/product_img/**").permitAll() 
-					.requestMatchers("/**").permitAll() 
+//					.requestMatchers("/**").permitAll() 
 					.requestMatchers("/admin/loginform", "/admin/login","/admin/registform","/admin/regist").permitAll() 
 					//롤은 권한의 집합을 의미하며, hasRole()  메서드는 롤을 사용하게 되고, 내부적으로 ROLE_  접두어가 붙음
 					.anyRequest().authenticated()
