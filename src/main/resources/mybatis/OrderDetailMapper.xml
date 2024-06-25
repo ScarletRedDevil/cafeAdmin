@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="com.sds.cafeadmin.model.order.OrderDetailDAO">
+
+	    <!-- OrderDetail와 OrderSummary 매핑 -->
+    <resultMap id="OrderDetailResultMap" type="com.sds.cafeadmin.domain.OrderDetail">
+        <id 			property="orderdetail_idx" 		column="orderdetail_idx"/>
+        <result 	property="ea" 						column="ea"/>
+        <result 	property="price"		 				column="price"/>
+        <result 	property="product_name" 		column="product_name"/>
+        <association property="orderSummary" 	column="ordersummary_idx" javaType="OrderSummary"
+        		select="com.sds.cafeadmin.model.order.OrderSummaryDAO.selectByOrderSummaryIdx">
+        </association>
+    </resultMap>
+	
+
+	<insert id="insert" parameterType="OrderDetail">
+		insert into orderdetail(product_idx, ea, product_name, price, ordersummary_idx)
+		values(#{product.product_idx}, #{ea}, #{product_name}, #{price}, #{orderSummary.ordersummary_idx})
+	</insert>
+	
+	<select id="getDetailList" resultMap="OrderDetailResultMap" parameterType="int">
+        SELECT * FROM orderdetail WHERE ordersummary_idx = #{ordersummary_idx}
+    </select>
+	
+
+</mapper>

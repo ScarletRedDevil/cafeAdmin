@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>상품목록</title>
+
+<th:block th:replace="~{fragments/header_link :: header_link}"/>
+  
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+
+  <!-- Preloader -->
+  <div class="preloader flex-column justify-content-center align-items-center">
+    <img class="animation__shake" src="/admin/dist/img/AdminLTELogo.png" alt="AdminLTELogo" height="60" width="60">
+  </div>
+
+  <!-- Navbar -->
+  <th:block th:replace="~{fragments/navbar :: navbar}"/>
+  <!-- /.navbar -->
+
+  <!-- Main Sidebar Container -->
+  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    <th:block th:replace="~{fragments/brand_logo :: brand_logo}"/>
+
+    <!-- Sidebar -->
+    <th:block th:replace="~{fragments/sidebar :: sidebar}"/>
+    <!-- Sidebar End -->
+    
+  </aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">주문목록</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="#"></a></li>
+              <li class="breadcrumb-item active"></li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+    
+    <!-- main contents -->
+    <section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <!-- /.card-header -->
+					<div class="col-12">
+					    <div class="card">
+					        <div class="card-body">
+					        	<div id="orderApp">
+					            <order-view></order-view>
+					            </div>
+					        </div>
+					    </div>
+					</div>
+                    <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+            </div>
+        </div>
+        <!-- /.row -->        
+
+    </div>
+    <!-- /.container-fluid -->
+</section>
+    <!-- /main contents -->
+
+    
+  </div>
+  <!-- /.content-wrapper -->
+
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar control-sidebar-dark">
+    <!-- Control sidebar content goes here -->
+  </aside>
+  <!-- /.control-sidebar -->
+</div>
+<!-- ./wrapper -->
+
+<!-- jQuery -->
+<script src="/admin/plugins/jquery/jquery.min.js"></script>
+<!-- jQuery UI 1.11.4 -->
+<script src="/admin/plugins/jquery-ui/jquery-ui.min.js"></script>
+<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+<script>
+  $.widget.bridge('uibutton', $.ui.button)
+</script>
+<th:block th:replace="~{fragments/footer_link :: footer_link}"/>
+
+<script type="text/javascript">
+
+
+const OrderView={
+	//2단계로 실행 : 가상 DOM 영역 ,  html 에 실제적으로 적용되는 실제DOM의 이전 단계
+	template:`
+	
+        <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>주문번호</th>
+                <th>주문시간</th>
+                <th>금액</th>
+                <th>상태</th>
+                <th>액션</th>
+            </tr>
+        </thead>
+		<tbody>
+			<tr v-for="(orderSummary, index)  in order_list"  aria-expanded="true">
+			    <td  @click="fetchOrder(orderSummary.ordersummary_idx)">{{orderSummary.ordersummary_idx}}</td>
+			    <td>{{orderSummary.orderdate}}</td>
+			    <td>{{orderSummary.total_pay}}</td>
+			    <td>{{orderSummary.orderstat.orderstat_name}}</td>
+                <td>
+                    <button class="btn btn-success complete-order">주문 완료</button>
+                </td>
+			</tr>
+			<tr class="expandable-body">
+			    <td colspan="5">
+			        <p style="height: 144px; padding-top: 12px; margin-top: 0px; padding-bottom: 12px; margin-bottom: 16px;">
+						<table id="product_table" class="table table-hover text-nowrap">
+						<thead>
+						    <tr>
+						        <th>주문번호</th>
+						        <th>제품명</th>
+						        <th>수량</th>
+						    </tr>
+						</thead>
+						<tbody>
+						    <tr  v-for="(orderDetail, index)  in order_detail_list" >
+						        <td>{{orderDetail.orderSummary.ordersummary_idx}}</td>
+						        <td>{{orderDetail.product_name}}</td>
+						        <td>{{orderDetail.ea}}</td>
+						    </tr>
+						</tbody>
+						</table>
+			        
+			        </p>    
+			    </td>
+			</tr>
+		</tbody>
+
+    </table>
+	
+	`,
+	data(){ //1단계 :  Vue 인스턴스가 생성될 때 실행되어 초기 데이터 객체를 반환
+		return {
+			order_list : null,
+			order_detail_list:null			
+		}
+	},
+	mounted(){ //3단계
+		//alert("mounted!!");
+		//this.fetchMember();
+		this.fetchOrderList();
+	},
+	methods:{
+		//문서 로딩과 함께 목록 가져오기
+		fetchOrderList(){
+			getOrderList()
+			.then(result =>{
+				this.order_list = result;
+				alert("vue의 order 변수값은 "+this.order_list);
+			})
+			.fail( err => {
+				console.log(err);
+			});			
+			
+		},
+		
+		//클릭시 상세내역 가졍괴 
+		fetchOrderDetail(orderSummaryIdx){
+			//서버로부터 jwt  토큰을 요청
+			getOrderDetail(orderSummaryIdx)
+			.then(result =>{
+				this.order_detail_list = result;
+				alert("vue의 order 변수값은 "+this.order_detail_list);
+			})
+			.fail( err => {
+				console.log(err);
+			});			
+		}
+	}	
+}
+
+
+const orderApp = Vue.createApp({
+	components:{
+		OrderView
+	}
+});
+
+orderApp.mount("#orderApp");
+
+
+/*-----------------------------------------------------------------
+ 상세정보 가져오기 
+ ----------------------------------------------------------------*/
+function getOrderList(){
+	//Promise 로 반환 
+	return $.ajax({
+		url : "/admin/getorderlist", 
+		type:"get",
+	})
+	.then(
+		function(result, status, xhr){
+			return result;
+		},
+		function(xhr , status, err){
+			throw new Error(err);
+		}
+	);
+}
+
+/*-----------------------------------------------------------------
+ 상세정보 가져오기 
+ ----------------------------------------------------------------*/
+function getOrderInfo(orderSummaryIdx){
+	//Promise 로 반환 
+	return $.ajax({
+		url : "/admin/orderdetail/"+orderSummaryIdx, 
+		type:"get",
+	})
+	.then(
+		function(result, status, xhr){
+			return result;
+		},
+		function(xhr , status, err){
+			throw new Error(err);
+		}
+	);
+}
+
+
+$(document).ready(function() {
+    $('.complete-order').click(function() {
+        var ordersummary_idx = $(this).data('ordersummary-idx');
+        $.ajax({
+            url: '/admin/orderlist/' + ordersummary_idx,
+            type: 'PUT',
+            success: function(result) {
+                alert('주문이 완료되었습니다.');
+                location.reload(); // 페이지 새로고침
+            },
+            error: function(xhr, status, error) {
+                alert('주문 완료 처리 중 오류가 발생했습니다.');
+            }
+        });
+    });
+});
+</script>
+
+</body>
+</html>

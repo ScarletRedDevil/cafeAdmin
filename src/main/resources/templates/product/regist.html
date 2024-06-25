@@ -62,7 +62,7 @@
 				<div class="container-fluid">
 
 					<!-- 카드 영역 begin -->
-					<form>
+					<form id="form1">
 						<div class="card card-default">
 							<div class="card-header">
 								<h3 class="card-title">Select2 (Default Theme)</h3>
@@ -155,7 +155,7 @@
 
 									<div class="col-md-12">
 										<div class="form-group">
-											<input type="file" class="form-control" name="photo">
+											<input type="file" class="form-control" name="file">
 										</div>
 									</div>
 
@@ -251,13 +251,12 @@
     
     // 상품 입력 정보 전송 
     function regist(){
-        $("form").attr({
+        $("#form1").attr({
             action:"/admin/product/regist",
             method:"post",
-            /*텍스트 데이터와 바이너리 데이터가 섞여 있는 복합 데이터를 전송하는 경우 반드시 enctype을 multipart/form-data로 설정*/
             enctype:"multipart/form-data"
         });
-        $("form").submit(); // 전송
+        $("#form1").submit(); // 전송
     }
     
     $(function(){

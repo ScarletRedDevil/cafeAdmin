@@ -3,17 +3,25 @@
 <mapper namespace="com.sds.cafeadmin.model.admin.AdminDAO">
 	
 	<insert id="insert" parameterType="Admin">
-		insert into admin(uid,pwd)
-		values(#{uid},#{pwd})
+		insert into admin(uid,pwd,username,role_idx)
+		values(#{uid},#{pwd},#{username},#{role.role_idx})
 	</insert>
 	<!-- 홈페이지 회원의 경우 비밀번호가 존재하고 비밀번호는 member_detail 테이블에 존재하므로 join을 해야함
 	하지만 mybatis객체 간 관계를 이용하면 association -->
+	
+	<resultMap type="Admin" id="AdminMap">
+		<id 		column="admin_idx" property="admin_idx" />
+		<result column="uid" 				property="uid" />
+		<result column="username" 		property="username" />
+		
+		<association column="role_idx" property="role" javaType="Role" select="com.sds.cafeadmin.model.admin.RoleDAO.select"/>
+	</resultMap>
 
 	
 	<!-- uid를 이용한 회원 조회 -->
 	<select id="selectByUid" parameterType="String" resultType="Admin">
-		select admin_idx, uid
-		from member where uid=#{uid}
+		select admin_idx, uid,username, role_idx, pwd
+		from admin where uid=#{uid}
 	</select>
 	
 	

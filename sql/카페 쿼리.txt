@@ -42,41 +42,25 @@ create table psize(
 	 , constraint  fk_product_psize  foreign key (product_idx) references product (product_idx)
 ) default character set utf8;
 
-create table sns(
-	sns_idx int primary key auto_increment
-	, sns_name varchar(12)
-	) default character set utf8;
-	
-	
-insert into sns(sns_name) values('google');
-insert into sns(sns_name) values('naver');
-insert into sns(sns_name) values('kakao');
-insert into sns(sns_name) values('homepage');
-	
-create  table  role(
-	role_idx  int primary key auto_increment 
-	, role_name  varchar(12)
-);
 
-insert into role(role_name) values('ADMIN');
-insert into role(role_name) values('USER');
-insert into role(role_name) values('GUEST');
+CREATE TABLE `psize` (
+  `psize_idx` int(11) NOT NULL AUTO_INCREMENT,
+  `size_name` varchar(3) DEFAULT NULL,
+  `product_idx` int(11) DEFAULT NULL,
+  PRIMARY KEY (`psize_idx`),
+  KEY `fk_product_psize` (`product_idx`),
+  CONSTRAINT `fk_product_psize` FOREIGN KEY (`product_idx`) REFERENCES `product` (`product_idx`)
+)DEFAULT CHARSET=utf8;
+
 
 create table admin(
    admin_idx int primary key auto_increment
    , uid varchar(30)
    , pwd varchar(64)
+   , username varchar(30)
+   , role_idx int
+   , CONSTRAINT fk_role_admin FOREIGN KEY (role_idx) REFERENCES role (role_idx)
 ) default  character set utf8;
-
-create table  member_detail(
-   member_detail_idx  int primary key auto_increment
- , password  varchar(64)
- , phone varchar(14)
- , member_idx int
- , constraint  fk_member_member_detail foreign key(member_idx)
-    references  member (member_idx)
-) default  character set utf8;
-
 
 
 //카트테이블 생성쿼리
@@ -106,18 +90,31 @@ insert into paymethod(payname) values('card');
 insert into paymethod(payname) values('transfer');
 insert into paymethod(payname) values('phone');
 
+create table orderstat(
+	orderstat_idx int primary key auto_increment
+	, orderstat_name varchar(12)
+)default character set utf8;
+
+insert into orderstat(orderstat_name) values('In Progress');
+insert into orderstat(orderstat_name) values('Finish');
+
+create table ordernum(
+	ordernum_idx int primary key auto_increment
+	, ordernum_num int
+)default character set utf8;
+
 //주문요약
 create table ordersummary(
 	ordersummary_idx int primary key auto_increment
 	, orderdate timestamp default now()
 	, total_buy int default 0
 	, total_pay int default 0
-	, member_idx int
 	, paymethod_idx int
-	, receiver_idx int
-	, constraint fk_member_ordersummary foreign key (member_idx) references member(member_idx)
+	, orderstat_idx int
+	, ordernum_idx int
 	, constraint fk_paymethod_ordersummary foreign key (paymethod_idx) references paymethod(paymethod_idx)
-	, constraint fk_receiver_ordersummary foreign key (receiver_idx) references receiver(receiver_idx)
+	, constraint fk_orderstat_ordersummary foreign key (orderstat_idx) references orderstat(orderstat_idx)
+	, constraint fk_ordernum_ordersummary foreign key (ordernum_idx) references ordernum(ordernum_idx)
 )default character set utf8;
 
 //주문상세
@@ -126,6 +123,7 @@ create table orderdetail(
  , product_name varchar(30)
  , price int default 0 
  , product_idx int 
+ , ea int
  , ordersummary_idx int 
  , constraint  fk_product_orderdetail  foreign key (product_idx) references product(product_idx)
  , constraint fk_ordersummary_orderdetail foreign key (ordersummary_idx) references ordersummary (ordersummary_idx)

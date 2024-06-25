@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="com.sds.cafeadmin.model.order.OrderSummaryDAO">
+
+	<insert id="insert" parameterType="OrderSummary">
+		insert into ordersummary(total_buy, total_pay, ordernum_idx, paymethod_idx, orderstat_idx)
+		values(#{total_buy}, #{total_pay}, #{ordernum.ordernum_idx}, #{paymethod.paymethod_idx}, #{orderstat.orderstat_idx})
+		
+		<selectKey 
+			keyColumn="ordersummary_idx" 
+			keyProperty="ordersummary_idx"
+			resultType="int"
+			order="AFTER">
+			select last_insert_id() as ordersummary_idx
+		</selectKey>
+	</insert>
+	
+<select id="selectByOrderStatIdx" resultMap="orderSummaryResultMap">
+    select * from ordersummary where orderstat_idx = #{stat}
+</select>
+
+<resultMap id="orderSummaryResultMap" type="OrderSummary">
+    <id property="ordersummary_idx" column="ordersummary_idx"/>
+    <result property="orderdate" column="orderdate"/>
+    <result property="total_buy" column="total_buy"/>
+    <result property="total_pay" column="total_pay"/>
+    <association property="paymethod" column="paymethod_idx" javaType="Paymethod" select="selectPaymethod"/>
+    <association property="ordernum" column="ordernum_idx" javaType="Ordernum" select="selectOrdernum"/>
+    <association property="orderstat" column="orderstat_idx" javaType="OrderStat" select="selectOrderStat"/>
+</resultMap>
+
+<select id="selectPaymethod" resultType="Paymethod">
+    select * from paymethod where paymethod_idx = #{paymethod_idx}
+</select>
+
+<select id="selectOrdernum" resultType="Ordernum">
+    select * from ordernum where ordernum_idx = #{ordernum_idx}
+</select>
+
+<select id="selectOrderStat" resultType="OrderStat">
+    select * from orderstat where orderstat_idx = #{orderstat_idx}
+</select>
+
+<update id="updateOrderStat" parameterType="OrderSummary">
+    update ordersummary set orderstat_idx = #{orderstat.orderstat_idx} where ordersummary_idx = #{ordersummary_idx}
+</update>
+
+<select id="selectByOrderSummaryIdx" resultMap="orderSummaryResultMap">
+    select * from ordersummary where ordersummary_idx = #{ordersummary_idx}
+</select>
+
+
+	
+
+</mapper>
